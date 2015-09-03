@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 
 namespace hdcNoticeGeneratorConsole
 {
@@ -10,6 +14,41 @@ namespace hdcNoticeGeneratorConsole
     {
         static void Main(string[] args)
         {
+
+            Stopwatch stp = new Stopwatch();
+            stp.Start();
+
+            string rmqHostName = ConfigurationManager.AppSettings["rmqhost"];
+            string rmqUserName = ConfigurationManager.AppSettings["rmquser"];
+            string rmqPassword = ConfigurationManager.AppSettings["rmqpassword"];
+
+            string uri = $"amqp://{rmqHostName}:45672/";
+            string exchange = "hdc";
+
+            Console.WriteLine(uri);
+
+            using (var connection = new ConnectionFactory { Uri = uri, UserName = rmqUserName, Password = rmqPassword }.CreateConnection())
+            {
+                using (var channel = connection.CreateModel())
+                {
+                    channel.ExchangeDeclare(exchange, ExchangeType.Fanout, true, false, null);
+                    channel.QueueDeclare(exchange, true, false, false, null);
+                    channel.QueueBind(exchange, exchange, "");
+
+                    var consumer = new EventingBasicConsumer(channel);
+                    consumer.Received += (model, ea) =>
+                    {
+                        var body = ea.Body;
+                        var message = Encoding.ASCII.GetString(body);
+                        Console.WriteLine($"Received message:{message}");
+                    };
+                    channel.BasicConsume(queue: exchange, noAck: true, consumer: consumer);
+                }
+            }
+
+            //subscribe
+            
+
             Console.WriteLine("Hello World...!");
             Console.WriteLine("Hello World...!");
             Console.WriteLine("Hello World...!");
