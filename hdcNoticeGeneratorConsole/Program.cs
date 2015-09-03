@@ -34,15 +34,17 @@ namespace hdcNoticeGeneratorConsole
                     channel.ExchangeDeclare(exchange, ExchangeType.Fanout, true, false, null);
                     channel.QueueDeclare(exchange, true, false, false, null);
                     channel.QueueBind(exchange, exchange, "");
-
-                    var consumer = new EventingBasicConsumer(channel);
-                    consumer.Received += (model, ea) =>
+                    while (true)
                     {
-                        var body = ea.Body;
-                        var message = Encoding.ASCII.GetString(body);
-                        Console.WriteLine($"Received message:{message}");
-                    };
-                    channel.BasicConsume(queue: exchange, noAck: true, consumer: consumer);
+                        var consumer = new EventingBasicConsumer(channel);
+                        consumer.Received += (model, ea) =>
+                        {
+                            var body = ea.Body;
+                            var message = Encoding.ASCII.GetString(body);
+                            Console.WriteLine($"Received message:{message}");
+                        };
+                        channel.BasicConsume(queue: exchange, noAck: true, consumer: consumer);
+                    }
                 }
             }
 
