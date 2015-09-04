@@ -29,12 +29,14 @@ namespace hdcNoticeGeneratorConsole
         {
             try
             {
-                Pdf pdf = new Pdf();
+                MemoryStream memory = new MemoryStream();
+
+                Pdf pdf = new Pdf(memory);
 
                 Section section = pdf.Sections.Add();
 
-                section.Paragraphs.Add(new Text(Body));
-
+                section.AddParagraph(new Text(Body));
+                section.AddParagraph(new Text("testing...."));
                 //save it
                 CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["StorageConnectionString"]);
 
@@ -53,10 +55,9 @@ namespace hdcNoticeGeneratorConsole
                 string fname = $"notice_{identifier}_{datePreFix}_.PDF";
 
                 CloudBlockBlob blob = container.GetBlockBlobReference(fname);
+                
 
-                MemoryStream memory = new MemoryStream();
-
-                pdf.Save(memory);
+                pdf.Close();
 
                 blob.UploadFromStream(memory);
             }
