@@ -48,9 +48,12 @@ namespace hdcNoticeGeneratorConsole
                             Console.WriteLine($"Received message:{message}");
 
                             //process a PDF here
-                            NoticeGen gen = new NoticeGen(message);
+                            Console.WriteLine($"Generating PDF for {message}");
+                            var msg = message;
+                            NoticeGen gen = new NoticeGen(msg);
 
                             gen.Generate(containerName);
+                            Console.WriteLine($"Completed PDF generation for {message}");
 
                             //send completion message?  with stats?
 

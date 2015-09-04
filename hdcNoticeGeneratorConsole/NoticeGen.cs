@@ -29,6 +29,7 @@ namespace hdcNoticeGeneratorConsole
         {
             try
             {
+                Console.WriteLine($"Beginning generation for {Body}");
                 MemoryStream memory = new MemoryStream();
 
                 Pdf pdf = new Pdf(memory);
