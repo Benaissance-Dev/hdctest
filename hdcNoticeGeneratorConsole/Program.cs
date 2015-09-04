@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using RabbitMQ.Client;
@@ -29,6 +30,9 @@ namespace hdcNoticeGeneratorConsole
 
             using (var connection = new ConnectionFactory { Uri = uri, UserName = rmqUserName, Password = rmqPassword }.CreateConnection())
             {
+
+                var containerName = $"{Dns.GetHostName()}_{DateTime.Now.ToString("yyyyMMddhhmmss")}";
+
                 using (var channel = connection.CreateModel())
                 {
                     channel.ExchangeDeclare(exchange, ExchangeType.Fanout, true, false, null);
@@ -42,6 +46,14 @@ namespace hdcNoticeGeneratorConsole
                             var body = ea.Body;
                             var message = Encoding.ASCII.GetString(body);
                             Console.WriteLine($"Received message:{message}");
+
+                            //process a PDF here
+                            NoticeGen gen = new NoticeGen(message);
+
+                            gen.Generate(containerName);
+
+                            //send completion message?  with stats?
+
                         };
                         channel.BasicConsume(queue: exchange, noAck: true, consumer: consumer);
                     }
