@@ -29,7 +29,7 @@ namespace hdcNoticeGeneratorConsole
         {
             try
             {
-                Console.WriteLine($"Beginning generation for {Body}");
+                Console.WriteLine($"Generate: Beginning generation for {Body}");
                 MemoryStream memory = new MemoryStream();
 
                 Pdf pdf = new Pdf(memory);
@@ -57,10 +57,11 @@ namespace hdcNoticeGeneratorConsole
 
                 CloudBlockBlob blob = container.GetBlockBlobReference(fname);
                 
-
+                Console.WriteLine("Closing PDF...");
                 pdf.Close();
 
                 blob.UploadFromStream(memory);
+                Console.WriteLine($"Uploaded pdf {fname}");
             }
             catch (Exception ex)
             {

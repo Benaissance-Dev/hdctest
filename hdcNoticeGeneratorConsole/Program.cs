@@ -59,6 +59,8 @@ namespace hdcNoticeGeneratorConsole
 
                         };
                         channel.BasicConsume(queue: exchange, noAck: true, consumer: consumer);
+
+                        System.Threading.Thread.Sleep(10);
                     }
                 }
             }
