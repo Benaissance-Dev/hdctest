@@ -27,37 +27,43 @@ namespace hdcNoticeGeneratorConsole
 
         public void Generate(string identifier)
         {
-            Pdf pdf = new Pdf();
+            try
+            {
+                Pdf pdf = new Pdf();
 
-            Section section = pdf.Sections.Add();
+                Section section = pdf.Sections.Add();
 
-            section.Paragraphs.Add(new Text(Body));
+                section.Paragraphs.Add(new Text(Body));
 
-            //save it
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["StorageConnectionString"]);
+                //save it
+                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.AppSettings["StorageConnectionString"]);
 
-            //string containerPath = "https://benaissancedev.blob.core.windows.net/notices";
+                //string containerPath = "https://benaissancedev.blob.core.windows.net/notices";
 
-            CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
-            CloudBlobContainer container = blobClient.GetContainerReference("notices");
+                CloudBlobContainer container = blobClient.GetContainerReference("notices");
 
-            container.CreateIfNotExists();
+                container.CreateIfNotExists();
 
-            //name the blob
+                //name the blob
 
-            string datePreFix = DateTime.Now.ToString("yyyyMMddhhmmss");
+                string datePreFix = DateTime.Now.ToString("yyyyMMddhhmmss");
 
-            string fname = $"notice_{identifier}_{datePreFix}_.PDF";
+                string fname = $"notice_{identifier}_{datePreFix}_.PDF";
 
-            CloudBlockBlob blob = container.GetBlockBlobReference(fname);
+                CloudBlockBlob blob = container.GetBlockBlobReference(fname);
 
-            MemoryStream memory = new MemoryStream();
+                MemoryStream memory = new MemoryStream();
 
-            pdf.Save(memory);
+                pdf.Save(memory);
 
-            blob.UploadFromStream(memory);
-
+                blob.UploadFromStream(memory);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"ex:{ex.Message}, stack:{ex.StackTrace}, source:{ex.Source}");
+            }
 
         }
 
