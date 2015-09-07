@@ -19,12 +19,16 @@ namespace hdcNoticeGeneratorConsole
             Stopwatch stp = new Stopwatch();
             stp.Start();
 
+            object lockObj= new object();
+
             string rmqHostName = ConfigurationManager.AppSettings["rmqhost"];
             string rmqUserName = ConfigurationManager.AppSettings["rmquser"];
             string rmqPassword = ConfigurationManager.AppSettings["rmqpassword"];
 
             string uri = $"amqp://{rmqHostName}:45672/";
             string exchange = "hdc";
+
+            long messageCounter = 0;
 
             Console.WriteLine(uri);
 
@@ -43,18 +47,24 @@ namespace hdcNoticeGeneratorConsole
                         var consumer = new EventingBasicConsumer(channel);
                         consumer.Received += (model, ea) =>
                         {
-                            var body = ea.Body;
-                            var message = Encoding.ASCII.GetString(body);
-                            Console.WriteLine($"Received message:{message}");
+                            lock (lockObj)
+                            {
+                                var body = ea.Body;
+                                var message = Encoding.ASCII.GetString(body);
+                                Console.WriteLine($"Received message:{message}");
 
-                            //process a PDF here
-                            Console.WriteLine($"Generating PDF for {message}");
-                            var msg = message;
-                            NoticeGen gen = new NoticeGen(msg);
+                                //process a PDF here
+                                Console.WriteLine($"Generating PDF for {message}");
+                                var msg = $"{messageCounter}_{message}";
+                                NoticeGen gen = new NoticeGen(msg);
 
-                            gen.Generate(containerName);
-                            Console.WriteLine($"Completed PDF generation for {message}");
+                                gen.Generate($"{messageCounter}_{containerName}");
+                                Console.WriteLine($"Completed PDF generation for {message}");
 
+                                messageCounter++;
+
+                                Console.WriteLine($"Processed {messageCounter} messages on {Dns.GetHostName()}");
+                            }
                             //send completion message?  with stats?
 
                         };
@@ -65,14 +75,7 @@ namespace hdcNoticeGeneratorConsole
                 }
             }
 
-            //subscribe
-            
-
-            Console.WriteLine("Hello World...!");
-            Console.WriteLine("Hello World...!");
-            Console.WriteLine("Hello World...!");
-            Console.WriteLine("Hello World...!");
-            Console.WriteLine("Hello World...!");
+       
         }
     }
 }
