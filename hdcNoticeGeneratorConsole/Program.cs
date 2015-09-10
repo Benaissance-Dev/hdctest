@@ -42,6 +42,8 @@ namespace hdcNoticeGeneratorConsole
                     channel.ExchangeDeclare(exchange, ExchangeType.Fanout, true, false, null);
                     channel.QueueDeclare(exchange, true, false, false, null);
                     channel.QueueBind(exchange, exchange, "");
+                    channel.BasicQos(0, 1, true);
+
                     while (true)
                     {
                         var consumer = new EventingBasicConsumer(channel);
