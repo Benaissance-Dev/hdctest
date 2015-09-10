@@ -78,26 +78,6 @@ namespace hdcNoticeGeneratorConsole
 
                 Console.WriteLine($"file save full path: {noticesPath}");
 
-                //PrivateKeyFile keyfile = new PrivateKeyFile(keyPath);
-
-                //PrivateKeyAuthenticationMethod pkm = new PrivateKeyAuthenticationMethod("preston", new PrivateKeyFile[] { keyfile });
-
-
-                //ConnectionInfo ci = new ConnectionInfo("hdcnoticestorage", "preston", new AuthenticationMethod[] { pkm });
-
-                //Renci.SshNet.SftpClient sftp = new Renci.SshNet.SftpClient("hdcnoticestorage.cloudapp.net", "preston", new PrivateKeyFile[] { keyfile });
-
-                //sftp.Connect();
-                //if (sftp.IsConnected)
-                //{
-                //    ms.Position = 0;
-                //    string filePath = "/notices/" + fname;
-                //    sftp.WriteAllBytes(filePath, ms.ToArray());
-                //    sftp.Disconnect();
-                //    sftp.Dispose();
-                //}
-
-
                 //if (File.Exists(localFile)) File.Delete(localFile);
                 //pdf.Save(localFile);
 
@@ -138,9 +118,12 @@ namespace hdcNoticeGeneratorConsole
                 
 
             }
-            catch (Exception ex)
+            catch (AggregateException aex)
             {
-                Console.WriteLine($"Exception!  message:{ex.Message}, stacktrace:{ex.StackTrace}, source:{ex.Source}");
+                foreach (var ex in aex.InnerExceptions)
+                {
+                    Console.WriteLine($"Exception!  message:{ex.Message}, stacktrace:{ex.StackTrace}, source:{ex.Source}");
+                }
             }
 
         }
