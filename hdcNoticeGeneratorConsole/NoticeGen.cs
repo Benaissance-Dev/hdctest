@@ -107,8 +107,8 @@ namespace hdcNoticeGeneratorConsole
 
                     container.CreateIfNotExists();
 
-                    var t = Task.Factory.FromAsync<Stream>(blob.BeginUploadFromStream, blob.EndUploadFromStream, ms, null);
-                    t.Wait();
+                    blob.UploadFromStream(ms);
+                                        
                 }
 
 
@@ -118,12 +118,11 @@ namespace hdcNoticeGeneratorConsole
                 
 
             }
-            catch (AggregateException aex)
+            catch (Exception ex)
             {
-                foreach (var ex in aex.InnerExceptions)
-                {
-                    Console.WriteLine($"Exception!  message:{ex.Message}, stacktrace:{ex.StackTrace}, source:{ex.Source}");
-                }
+                
+                Console.WriteLine($"Exception!  message:{ex.Message}, stacktrace:{ex.StackTrace}, source:{ex.Source}");
+                
             }
 
         }
